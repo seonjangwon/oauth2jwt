@@ -4,6 +4,7 @@ import com.security.oauth2jwt.jwt.JWTFilter;
 import com.security.oauth2jwt.jwt.JWTUtil;
 import com.security.oauth2jwt.oauth2.CustomSuccessHandler;
 import com.security.oauth2jwt.service.CustomOAuth2UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +30,29 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws  Exception {
+
+        // cors
+        http
+                .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+
+                        CorsConfiguration configuration = new CorsConfiguration();
+
+                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 서버주소 포트까지
+                        configuration.setAllowedMethods(Collections.singletonList("*")); // 메서트
+                        configuration.setAllowCredentials(true); // 크리데이션값?
+                        configuration.setAllowedHeaders(Collections.singletonList("*")); // 허용 헤더
+                        configuration.setMaxAge(3600L);
+
+                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie")); // 우리가 보낼 헤더
+                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+
+                        return configuration;
+                    }
+                }));
+
 
         //csrf disable
         http
